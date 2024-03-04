@@ -16,6 +16,8 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('tape_rotation')
 
+TXT_GREEN = "\033[32m"
+
 SYSTEM_NAME = 24 * " " + " TAPE ROTATION MANAGEMENT SYSTEM " + 23 * " "
 WELCOME_MSG = ("This CLI System is designed to manage and oversee the tape rotation schedule\n"
     "across different media types, including BRMS, DAILY, WEEKLY, and MONTHLY. \n"
@@ -45,6 +47,7 @@ def print_menu():
     print(table)
 
 def main():
+    print(TXT_GREEN) # Use font green color
     print_welcome_screen()
     print_menu()
 
