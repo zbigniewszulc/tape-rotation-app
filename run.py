@@ -1,5 +1,4 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
-
 # Import modules, packages or libraries
 import gspread 
 from google.oauth2.service_account import Credentials
@@ -16,7 +15,7 @@ SCOPED_CREDS = CREDS.with_scopes(SCOPE)
 GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
 SHEET = GSPREAD_CLIENT.open('tape_rotation')
 
-TXT_GREEN = "\033[32m"
+TXT_GREEN = "\033[32m" # Console color:green 
 
 SYSTEM_NAME = 24 * " " + " TAPE ROTATION MANAGEMENT SYSTEM " + 23 * " "
 WELCOME_MSG = ("This CLI System is designed to manage and oversee the tape rotation schedule\n"
@@ -24,7 +23,11 @@ WELCOME_MSG = ("This CLI System is designed to manage and oversee the tape rotat
     "It is tailored for IT department use, facilitating the monitoring and control of \n"
     "backup tape storage locations, whether onsite, offsite, or retired.")
 
+# Functions
 def print_welcome_screen():
+    """
+    Display program introduction message 
+    """
     print(80 * "=")
     print(SYSTEM_NAME)
     print(80 * "=")
@@ -32,6 +35,9 @@ def print_welcome_screen():
     print(80 * "-" + "\n")
 
 def print_menu():
+    """
+    Display menu
+    """
     data = [
         [1, "Move tape offsite"],
         [2, "Move tape onsite"],
@@ -47,7 +53,7 @@ def print_menu():
     print(table)
 
 def main():
-    print(TXT_GREEN) # Use font green color
+    print(TXT_GREEN) # Use console font color green
     print_welcome_screen()
     print_menu()
 
