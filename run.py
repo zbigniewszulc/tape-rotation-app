@@ -23,6 +23,58 @@ WELCOME_MSG = ("This CLI System is designed to manage and oversee the tape rotat
     "It is tailored for IT department use, facilitating the monitoring and control of \n"
     "backup tape storage locations, whether onsite, offsite, or retired.")
 
+# Classes
+class Menu:
+    """
+    Menu class with its methods
+    """
+    def __init__(self):
+        self.data = [
+            [1, "- Move tape offsite"],
+            [2, "- Move tape onsite"],
+            [3, "- Move tape to retired media pool"],
+            [4, "- Display all tapes stored offsite"],
+            [5, "- Display all tapes stored onsite"],
+            [6, "- Display all retired tapes"],
+            [7, "- Lookup"],
+            [8, "- Exit"]
+        ]
+        self.headers = ["#","Menu"]   
+
+    def print_menu(self, tablefmt):
+        """
+        Display menu
+        """
+        self.tablefmt=tablefmt
+        table = tabulate(self.data, self.headers, self.tablefmt)
+        return table
+    
+    def get_selection(self):
+        """
+        Return menu option selected
+        """
+        choice = input("Enter your choice from the Menu: ")
+        return choice
+    
+    def validate_selection(self, user_choice):
+            """
+            Validate menu option selected
+            """
+            # Exception handling - user input validation. Errors expected 
+            try:
+                # Attempt to convert user choice to integer
+                choice_int = int(user_choice)
+
+                if (1 <= choice_int <= 8):
+                    return True
+                else:
+                    raise ValueError(f"Valid menu options are: 1 through 8.")
+                
+            except ValueError as e:
+                print(f"Your entry: '{user_choice}'. Error: {e}.. Try again!")    
+                return False
+
+
 # Functions
 def print_welcome_screen():
     """
@@ -34,27 +86,22 @@ def print_welcome_screen():
     print(WELCOME_MSG)
     print(80 * "-" + "\n")
 
-def print_menu():
-    """
-    Display menu
-    """
-    data = [
-        [1, "Move tape offsite"],
-        [2, "Move tape onsite"],
-        [3, "Move tape to retired media pool"],
-        [4, "Display all tapes stored offsite"],
-        [5, "Display all tapes stored onsite"],
-        [6, "Display all retired tapes"],
-        [7, "Lookup"],
-        [8, "Exit"]
-    ]
-    headers = ["#","Menu"]
-    table = tabulate(data, headers=headers, tablefmt="simple")
-    print(table)
-
 def main():
+    """
+    This is where all flow begins
+    """
+    # Variables
+    menu = Menu()
+
     print(TXT_GREEN) # Use console font color green
     print_welcome_screen()
-    print_menu()
+    print(menu.print_menu("simple"))
+    print("\n")
+    
+    while True:
+        user_choice = menu.get_selection()
+        if menu.validate_selection(user_choice):
+            break # Exit the loop if a valid menu option was entered
+    
 
 main()
