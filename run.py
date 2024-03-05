@@ -56,23 +56,30 @@ class Menu:
         choice = input("Enter your choice from the Menu: ")
         return choice
     
-    def validate_selection(self, user_choice):
-            """
-            Validate menu option selected
-            """
-            # Exception handling - user input validation. Errors expected 
-            try:
-                # Attempt to convert user choice to integer
-                choice_int = int(user_choice)
-
-                if (1 <= choice_int <= 8):
-                    return True
-                else:
-                    raise ValueError(f"Valid menu options are: 1 through 8.")
-                
-            except ValueError as e:
-                print(f"Your entry: '{user_choice}'. Error: {e}.. Try again!")    
-                return False
+    def get_valid_selection(self, user_choice):
+        """
+        Validate menu option selected
+        """
+        # Exception handling - user input validation. Errors expected 
+        try:
+            # Attempt to convert user choice to integer
+            choice_int = int(user_choice) 
+            if 1 <= choice_int <= 8:
+                return choice_int
+            else:
+                print("Valid menu options are: 1 through 8.")
+                return None
+        except ValueError:
+            # Raise custom exception 
+            print ("Numerical value expected")
+            return None
+    
+    def valid_usr_input(self):
+        while True:
+            user_choice = self.get_selection()
+            validated_choice = self.get_valid_selection(user_choice)
+            if validated_choice:
+                return validated_choice
 
 
 # Functions
@@ -97,11 +104,8 @@ def main():
     print_welcome_screen()
     print(menu.print_menu("simple"))
     print("\n")
+    # Get valid user's menu input
+    usr_input = menu.valid_usr_input()
+    print(f"You have selected: {usr_input}")
     
-    while True:
-        user_choice = menu.get_selection()
-        if menu.validate_selection(user_choice):
-            break # Exit the loop if a valid menu option was entered
-    
-
 main()
