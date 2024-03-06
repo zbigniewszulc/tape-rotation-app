@@ -1,5 +1,7 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 # Import modules, packages or libraries
+import sys
+import time
 import gspread 
 from google.oauth2.service_account import Credentials
 from tabulate import tabulate
@@ -96,8 +98,9 @@ class Menu:
             print(f"Your selection: {self.data[6][0]} {self.data[6][1]}")
             return "7 selected"
         elif usr_input == 8:
-            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}")
-            return "8 selected"
+            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}. \nTerminating the program")
+            # Terminates the program in a fancy way using countdown
+            countdwn_exit(3)
         else:
             return "No assigned function for given input"
 
@@ -143,6 +146,18 @@ def print_welcome_screen():
 def render_table(data, headers, tablefmt):
     table = tabulate(data, headers, tablefmt)
     return table
+
+def countdwn_exit(sec):
+    """
+    It terminates the program using built in sys and time module
+    """
+    for i in range(sec, 0, -1):
+        print(i)
+        time.sleep(1)
+    print("Bye Bye!")   
+    # Delay 2 sek https://docs.python.org/3/library/time.html#time.sleep
+    time.sleep(2)
+    return sys.exit() # https://docs.python.org/3/library/sys.html#sys.exit
 
 def main():
     """
