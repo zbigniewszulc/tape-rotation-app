@@ -5,16 +5,6 @@ from google.oauth2.service_account import Credentials
 from tabulate import tabulate
 
 # Declare constant variables
-SCOPE = [
-    "https://www.googleapis.com/auth/spreadsheets",
-    "https://www.googleapis.com/auth/drive.file",
-    "https://www.googleapis.com/auth/drive"
-    ]
-CREDS = Credentials.from_service_account_file('creds.json')
-SCOPED_CREDS = CREDS.with_scopes(SCOPE)
-GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
-SHEET = GSPREAD_CLIENT.open('tape_rotation')
-
 TXT_GREEN = "\033[32m" # Console color:green 
 
 SYSTEM_NAME = 24 * " " + " TAPE ROTATION MANAGEMENT SYSTEM " + 23 * " "
@@ -81,6 +71,23 @@ class Menu:
             if validated_choice:
                 return validated_choice
 
+class GoogleSpreadsheet():
+    """
+    Google spreadsheet class with its attributes and methods
+    """
+    def __init__(self):
+        self.SCOPE = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive.file",
+        "https://www.googleapis.com/auth/drive"
+        ]
+        self.CREDS = Credentials.from_service_account_file('creds.json')
+        self.SCOPED_CREDS = self.CREDS.with_scopes(self.SCOPE)
+        self.GSPREAD_CLIENT = gspread.authorize(self.SCOPED_CREDS)
+        self.SHEET = self.GSPREAD_CLIENT.open("tape_rotation")
+
+    def open_worksheet(self, worksheet):
+        return self.SHEET.worksheet(worksheet)
 
 # Functions
 def print_welcome_screen():
@@ -107,5 +114,5 @@ def main():
     # Get valid user's menu input
     usr_input = menu.valid_usr_input()
     print(f"You have selected: {usr_input}")
-    
+
 main()
