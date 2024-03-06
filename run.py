@@ -18,25 +18,16 @@ class Menu:
     """
     Menu class with its methods
     """
-    def __init__(self):
-        self.data = [
-            [1, "- Move tape offsite"],
-            [2, "- Move tape onsite"],
-            [3, "- Move tape to retired media pool"],
-            [4, "- Display all tapes stored offsite"],
-            [5, "- Display all tapes stored onsite"],
-            [6, "- Display all retired tapes"],
-            [7, "- Lookup"],
-            [8, "- Exit"]
-        ]
-        self.headers = ["#","Menu"]   
+    def __init__(self, data, headers):
+        self.data = data
+        self.headers = headers  
 
-    def print_menu(self, tablefmt):
+    def render_menu(self):
         """
-        Display menu
+        Render menu in form of table
         """
-        self.tablefmt=tablefmt
-        table = tabulate(self.data, self.headers, self.tablefmt)
+        table_format = "simple"
+        table = render_table(self.data, self.headers, table_format)
         return table
     
     def get_selection(self):
@@ -50,14 +41,16 @@ class Menu:
         """
         Validate menu option selected
         """
+        # Number of options in Menu
+        num_of_opt = len(self.data)
         # Exception handling - user input validation. Errors expected 
         try:
             # Attempt to convert user choice to integer
             choice_int = int(user_choice) 
-            if 1 <= choice_int <= 8:
+            if 1 <= choice_int <= num_of_opt:
                 return choice_int
             else:
-                print("Please select a menu option from 1 to 8.")
+                print("Please select menu option from 1 to 8.")
                 return None
         except ValueError:
             # Raise custom exception 
@@ -122,11 +115,23 @@ def main():
     This is where all flow begins
     """
     # Variables
-    menu = Menu()
+    # Data to build Menu
+    menu_headers = ["#","Menu"]
+    menu_data = [
+            [1, "- Move tape offsite"],
+            [2, "- Move tape onsite"],
+            [3, "- Move tape to retired media pool"],
+            [4, "- Display all tapes stored offsite"],
+            [5, "- Display all tapes stored onsite"],
+            [6, "- Display all retired tapes"],
+            [7, "- Lookup"],
+            [8, "- Exit"]
+        ]
+    menu = Menu(menu_data, menu_headers)
 
     print(TXT_GREEN) # Use console font color green
     print_welcome_screen()
-    print(menu.print_menu("simple"))
+    print(menu.render_menu())
     print("\n")
     # Get valid user's menu input
     usr_input = menu.valid_usr_input()
