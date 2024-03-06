@@ -58,23 +58,17 @@ class Menu:
             return None
     
     def valid_usr_input(self):
+        """
+        Validate user input
+        """
         while True:
             user_choice = self.get_selection()
             validated_choice = self.get_valid_selection(user_choice)
             if validated_choice:
                 return validated_choice
             
-    # Menu options       
-    def display_all_tapes(self, worksheet):
-        print(f"Fetching data for: {worksheet} tapes")
-        spreadsheet = GoogleSpreadsheet()
-        wrksheet = spreadsheet.open_worksheet(worksheet)
-        all_records = wrksheet.get_all_values()
-        headers = all_records[0] # Get first element of the list
-        data = all_records[1:] # Slice table, skip the first element of the list
-        table_format = "psql"
-        table = render_table(data, headers, table_format) 
-        return table
+    # Menu options
+
 
 class GoogleSpreadsheet():
     """
@@ -93,7 +87,16 @@ class GoogleSpreadsheet():
 
     def open_worksheet(self, worksheet):
         return self.SHEET.worksheet(worksheet)
-
+    
+    def disp_all_wrksht_rec(self, worksheet):
+        print(f"Fetching data for: {worksheet} tapes")
+        wrksheet = self.open_worksheet(worksheet)
+        all_records = wrksheet.get_all_values()
+        headers = all_records[0] # Get first element of the list
+        data = all_records[1:] # Slice table, skip the first element of the list
+        table_format = "psql"
+        table = render_table(data, headers, table_format) 
+        return table
 
 # Functions
 def print_welcome_screen():
@@ -135,8 +138,6 @@ def main():
     print("\n")
     # Get valid user's menu input
     usr_input = menu.valid_usr_input()
-    print(f"You have selected: {usr_input}")
-
-    print(menu.display_all_tapes("Offsite"))
+    print(menu.process_input(usr_input))
 
 main()
