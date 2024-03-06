@@ -68,7 +68,38 @@ class Menu:
                 return validated_choice
             
     # Menu options
+    def process_input(self, usr_input):
+        """
+        Manage flow based on user selection from the Menu
+        """
+        g_sheet = GoogleSpreadsheet()
 
+        if usr_input == 1:
+            print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
+            return "1 selected"
+        elif usr_input == 2:
+            print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
+            return "2 selected"
+        elif usr_input == 3:
+            print(f"Your selection: {self.data[2][0]} {self.data[2][1]}")
+            return "3 selected"
+        elif usr_input == 4:
+            print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
+            return g_sheet.disp_all_wrksht_rec("Offsite")
+        elif usr_input == 5:
+            print(f"Your selection: {self.data[4][0]} {self.data[4][1]}")
+            return g_sheet.disp_all_wrksht_rec("Onsite")
+        elif usr_input == 6:
+            print(f"Your selection: {self.data[5][0]} {self.data[5][1]}")
+            return g_sheet.disp_all_wrksht_rec("Retired")
+        elif usr_input == 7:
+            print(f"Your selection: {self.data[6][0]} {self.data[6][1]}")
+            return "7 selected"
+        elif usr_input == 8:
+            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}")
+            return "8 selected"
+        else:
+            return "No assigned function for given input"
 
 class GoogleSpreadsheet():
     """
