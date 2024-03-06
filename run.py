@@ -67,11 +67,11 @@ class Menu:
             if 1 <= choice_int <= 8:
                 return choice_int
             else:
-                print("Valid menu options are: 1 through 8.")
+                print("Please select a menu option from 1 to 8.")
                 return None
         except ValueError:
             # Raise custom exception 
-            print ("Numerical value expected")
+            print ("Numerical value expected. Try again..")
             return None
     
     def valid_usr_input(self):
