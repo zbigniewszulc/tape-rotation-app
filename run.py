@@ -42,13 +42,6 @@ class Menu:
         table = render_table(self.data, self.headers, table_format)
         return table
     
-    def get_selection(self):
-        """
-        Return menu option selected
-        """
-        choice = input("Enter your choice from the Menu: ")
-        return choice
-    
     def get_valid_selection(self, user_choice):
         """
         Validate menu option selected
@@ -74,7 +67,7 @@ class Menu:
         Validate user input
         """
         while True:
-            user_choice = self.get_selection()
+            user_choice = get_numeric_input("Enter your choice from the Menu: ")
             validated_choice = self.get_valid_selection(user_choice)
             if validated_choice:
                 return validated_choice
@@ -88,38 +81,38 @@ class Menu:
 
         # 1  - Move tape offsite
         if usr_input == 1:
-            print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
+            print(f"\nYour selection: {self.data[0][0]} {self.data[0][1]}")
             print("1 selected")
 
         # 2  - Move tape onsite
         elif usr_input == 2:
-            print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
+            print(f"\nYour selection: {self.data[1][0]} {self.data[1][1]}")
             print("2 selected")
         
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
-            print(f"Your selection: {self.data[2][0]} {self.data[2][1]}")
+            print(f"\nYour selection: {self.data[2][0]} {self.data[2][1]}")
             print("3 selected")
         
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
-            print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
+            print(f"\nYour selection: {self.data[3][0]} {self.data[3][1]}")
             print(g_sheet.disp_all_wrksht_val("Offsite"))
         
         # 5  - Display all tapes stored onsite
         elif usr_input == 5:
-            print(f"Your selection: {self.data[4][0]} {self.data[4][1]}")
+            print(f"\nYour selection: {self.data[4][0]} {self.data[4][1]}")
             print(g_sheet.disp_all_wrksht_val("Onsite"))
         
         # 6  - Display all retired tapes
         elif usr_input == 6:
-            print(f"Your selection: {self.data[5][0]} {self.data[5][1]}")
+            print(f"\nYour selection: {self.data[5][0]} {self.data[5][1]}")
             print(g_sheet.disp_all_wrksht_val("Retired"))
         
         # 7  - Lookup
         elif usr_input == 7:
-            print(f"Your selection: {self.data[6][0]} {self.data[6][1]}")
-            tape=input("Please enter tape number: ")
+            print(f"\nYour selection: {self.data[6][0]} {self.data[6][1]}")
+            tape=get_numeric_input("Please enter tape number: ")
             lookup = GoogleSpreadsheet()
             workbooks = ["Offsite", "Onsite", "Retired"]
             for workbook in workbooks:
@@ -129,7 +122,7 @@ class Menu:
 
         #  8  - Exit        
         elif usr_input == 8:
-            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}.")
+            print(f"\nYour selection: {self.data[7][0]} {self.data[7][1]}.")
             print("Terminating the program")
             # Terminates the program in a fancy way using countdown
             countdwn_exit(3)
@@ -214,6 +207,18 @@ def print_welcome_screen():
     print(80 * "=")
     print(WELCOME_MSG)
     print(80 * "-" + "\n")
+
+def get_numeric_input(prompt):
+    """
+    It takes user numeric input from user. Allows to set own prompt
+    """
+    while True:
+        user_input = input(prompt)
+        # https://docs.python.org/3/library/stdtypes.html#str.isdigit
+        if user_input.isdigit():    
+            return user_input
+        else:
+            print("Only numeric inputs allowed. Try again..")
 
 def render_table(data, headers, tablefmt):
     """
