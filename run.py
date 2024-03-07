@@ -97,13 +97,13 @@ class Menu:
             return "3 selected"
         elif usr_input == 4:
             print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
-            return g_sheet.disp_all_wrksht_rec("Offsite")
+            return g_sheet.disp_all_wrksht_val("Offsite")
         elif usr_input == 5:
             print(f"Your selection: {self.data[4][0]} {self.data[4][1]}")
-            return g_sheet.disp_all_wrksht_rec("Onsite")
+            return g_sheet.disp_all_wrksht_val("Onsite")
         elif usr_input == 6:
             print(f"Your selection: {self.data[5][0]} {self.data[5][1]}")
-            return g_sheet.disp_all_wrksht_rec("Retired")
+            return g_sheet.disp_all_wrksht_val("Retired")
         elif usr_input == 7:
             print(f"Your selection: {self.data[6][0]} {self.data[6][1]}")
             return "7 selected"
@@ -133,19 +133,25 @@ class GoogleSpreadsheet():
         return self.SHEET.worksheet(worksheet)
     
     def get_headers(self, worksheet):
+        """
+        Returns list of headers of worksheet  
+        """
         wrksheet = self.open_worksheet(worksheet)
         headers = wrksheet.row_values(1)
         return headers
     
     def find_all(self, worksheet, tape):
         """
-        Search for all entries of given worksheet name and tape number  
+        Find all entries of provided tape number in worksheet  
         """
         wrksheet = self.open_worksheet(worksheet)
         cell_list = wrksheet.findall(tape, in_column=1)
         return cell_list
     
-    def disp_all_wrksht_rec(self, worksheet):
+    def disp_all_wrksht_val(self, worksheet):
+        """
+        Fetch and return all values in worksheet in form of table 
+        """
         print(f"Fetching data for: {worksheet} tapes")
         wrksheet = self.open_worksheet(worksheet)
         all_records = wrksheet.get_all_values()
