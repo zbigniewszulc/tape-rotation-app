@@ -132,6 +132,14 @@ class GoogleSpreadsheet():
     def open_worksheet(self, worksheet):
         return self.SHEET.worksheet(worksheet)
     
+    def find_all(self, worksheet, tape):
+        """
+        Search for all entries of given worksheet name and tape number  
+        """
+        wrksheet = self.open_worksheet(worksheet)
+        cell_list = wrksheet.findall(tape, in_column=1)
+        return cell_list
+    
     def disp_all_wrksht_rec(self, worksheet):
         print(f"Fetching data for: {worksheet} tapes")
         wrksheet = self.open_worksheet(worksheet)
