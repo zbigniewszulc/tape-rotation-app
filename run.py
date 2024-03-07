@@ -1,10 +1,20 @@
 # Write your code to expect a terminal of 80 characters wide and 24 rows high
 # Import modules, packages or libraries
-import sys
-import time
-import gspread 
-from google.oauth2.service_account import Credentials
-from tabulate import tabulate
+
+# https://docs.python.org/3/library/sys.html
+import sys                      
+
+# https://docs.python.org/3/library/time.html
+import time              
+
+# https://docs.gspread.org/en/latest/index.html
+import gspread      
+
+# https://google-auth.readthedocs.io/en/master/reference/modules.html
+from google.oauth2.service_account import Credentials  
+
+# https://pypi.org/project/tabulate/
+from tabulate import tabulate   
 
 # Declare constant variables
 TXT_GREEN = "\033[32m" # Console color:green 
@@ -144,6 +154,9 @@ def print_welcome_screen():
     print(80 * "-" + "\n")
 
 def render_table(data, headers, tablefmt):
+    """
+    Render table using tabulate module
+    """
     table = tabulate(data, headers, tablefmt)
     return table
 
