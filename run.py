@@ -132,6 +132,11 @@ class GoogleSpreadsheet():
     def open_worksheet(self, worksheet):
         return self.SHEET.worksheet(worksheet)
     
+    def get_headers(self, worksheet):
+        wrksheet = self.open_worksheet(worksheet)
+        headers = wrksheet.row_values(1)
+        return headers
+    
     def find_all(self, worksheet, tape):
         """
         Search for all entries of given worksheet name and tape number  
