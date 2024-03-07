@@ -140,9 +140,10 @@ class GoogleSpreadsheet():
         headers = wrksheet.row_values(1)
         return headers
     
-    def find_all(self, worksheet, tape):
+    def find_all_cells(self, worksheet, tape):
         """
-        Find all entries of provided tape number in worksheet  
+        Find all entries of provided tape number in worksheet. 
+        Returns list of objects, e.g. [<Cell R4C1 '5544'>, <Cell R5C1 '5544'>] 
         """
         wrksheet = self.open_worksheet(worksheet)
         cell_list = wrksheet.findall(tape, in_column=1)
@@ -159,6 +160,24 @@ class GoogleSpreadsheet():
         data = all_records[1:] # Slice table, skip the first element of the list
         table_format = "psql"
         table = render_table(data, headers, table_format) 
+        return table
+    
+    def lookup_results(self, worksheet, tape):
+        lookup = GoogleSpreadsheet()
+        results = lookup.find_all_cells(worksheet, tape)
+        rows = []
+        all_row_val = []
+
+        # Get row number (from object property) and append to 'rows' list
+        for result in results:
+            rows.append(result.row)
+        # Get all rows values and append to all_row_val list    
+        for row in rows:
+            wrksheet = lookup.open_worksheet(worksheet)
+            all_row_val.append(wrksheet.row_values(row))
+
+        headers = lookup.get_headers(worksheet)
+        table = (render_table(all_row_val, headers, "psql"))
         return table
 
 # Functions
@@ -187,7 +206,7 @@ def countdwn_exit(sec):
         print(i)
         time.sleep(1)
     print("Bye Bye!")   
-    # Delay 2 sek https://docs.python.org/3/library/time.html#time.sleep
+    # Delay 2 sec https://docs.python.org/3/library/time.html#time.sleep
     time.sleep(2)
     return sys.exit() # https://docs.python.org/3/library/sys.html#sys.exit
 
