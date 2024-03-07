@@ -5,7 +5,10 @@
 import sys                      
 
 # https://docs.python.org/3/library/time.html
-import time              
+import time   
+
+# https://docs.python.org/3/library/datetime.html
+from datetime import datetime
 
 # https://docs.gspread.org/en/latest/index.html
 import gspread      
@@ -82,7 +85,11 @@ class Menu:
         # 1  - Move tape offsite
         if usr_input == 1:
             print(f"\nYour selection: {self.data[0][0]} {self.data[0][1]}")
-            print("1 selected")
+            current_date = get_current_date()
+            tape = get_numeric_input("Enter the number of the tape to be moved: ")
+            type = input("Enter the type of tape: ")
+            wrksheet = g_sheet.open_worksheet("Onsite")
+            wrksheet.append_row([tape, type, current_date])
 
         # 2  - Move tape onsite
         elif usr_input == 2:
@@ -173,9 +180,12 @@ class GoogleSpreadsheet():
         all_records = wrksheet.get_all_values()
         headers = all_records[0] # Get first element of the list
         data = all_records[1:] # Slice table, skip the first element of the list
-        table_format = "psql"
-        table = render_table(data, headers, table_format) 
-        return table
+        if (len(data)) > 0:
+            table_format = "psql"
+            table = render_table(data, headers, table_format) 
+            return table
+        else:
+            return "There are no records for " + worksheet + " tapes yet"
     
     def lookup_results(self, worksheet, tape):
         print(f"\nSearching {worksheet} tapes for: {tape}")
@@ -208,6 +218,9 @@ def print_welcome_screen():
     print(WELCOME_MSG)
     print(80 * "-" + "\n")
 
+def get_current_date():
+    return datetime.now().strftime("%d/%m/%Y")    
+
 def get_numeric_input(prompt):
     """
     It takes user numeric input from user. Allows to set own prompt
@@ -216,7 +229,7 @@ def get_numeric_input(prompt):
         user_input = input(prompt)
         # https://docs.python.org/3/library/stdtypes.html#str.isdigit
         if user_input.isdigit():    
-            return user_input
+            return user_input 
         else:
             print("Only numeric inputs allowed. Try again..")
 
@@ -258,12 +271,17 @@ def main():
         ]
     menu = Menu(menu_data, menu_headers)
 
+    # Welcome screen
     print(TXT_GREEN) # Use console font color green
     print_welcome_screen()
+
+    # Render menu
     print(menu.render_menu())
     print("\n")
+
     # Get valid user's menu input
     usr_input = menu.valid_usr_input()
     menu.process_input(usr_input)
+
 
 main()
