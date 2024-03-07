@@ -86,33 +86,55 @@ class Menu:
         """
         g_sheet = GoogleSpreadsheet()
 
+        # 1  - Move tape offsite
         if usr_input == 1:
             print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
-            return "1 selected"
+            print("1 selected")
+
+        # 2  - Move tape onsite
         elif usr_input == 2:
             print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
-            return "2 selected"
+            print("2 selected")
+        
+        # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"Your selection: {self.data[2][0]} {self.data[2][1]}")
-            return "3 selected"
+            print("3 selected")
+        
+        # 4  - Display all tapes stored offsite
         elif usr_input == 4:
             print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
-            return g_sheet.disp_all_wrksht_val("Offsite")
+            print(g_sheet.disp_all_wrksht_val("Offsite"))
+        
+        # 5  - Display all tapes stored onsite
         elif usr_input == 5:
             print(f"Your selection: {self.data[4][0]} {self.data[4][1]}")
-            return g_sheet.disp_all_wrksht_val("Onsite")
+            print(g_sheet.disp_all_wrksht_val("Onsite"))
+        
+        # 6  - Display all retired tapes
         elif usr_input == 6:
             print(f"Your selection: {self.data[5][0]} {self.data[5][1]}")
-            return g_sheet.disp_all_wrksht_val("Retired")
+            print(g_sheet.disp_all_wrksht_val("Retired"))
+        
+        # 7  - Lookup
         elif usr_input == 7:
             print(f"Your selection: {self.data[6][0]} {self.data[6][1]}")
-            return "7 selected"
+            tape=input("Please enter tape number: ")
+            lookup = GoogleSpreadsheet()
+            workbooks = ["Offsite", "Onsite", "Retired"]
+            for workbook in workbooks:
+                results = lookup.lookup_results(workbook, tape)
+                if results:
+                    print(results)
+
+        #  8  - Exit        
         elif usr_input == 8:
-            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}. \nTerminating the program")
+            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}.")
+            print("Terminating the program")
             # Terminates the program in a fancy way using countdown
             countdwn_exit(3)
         else:
-            return "No assigned function for given input"
+            print("No assigned function for given input")
 
 class GoogleSpreadsheet():
     """
@@ -153,7 +175,7 @@ class GoogleSpreadsheet():
         """
         Fetch and return all values in worksheet in form of table 
         """
-        print(f"Fetching data for: {worksheet} tapes")
+        print(f"\nFetching data for: {worksheet} tapes")
         wrksheet = self.open_worksheet(worksheet)
         all_records = wrksheet.get_all_values()
         headers = all_records[0] # Get first element of the list
@@ -163,22 +185,24 @@ class GoogleSpreadsheet():
         return table
     
     def lookup_results(self, worksheet, tape):
-        lookup = GoogleSpreadsheet()
-        results = lookup.find_all_cells(worksheet, tape)
-        rows = []
-        all_row_val = []
-
-        # Get row number (from object property) and append to 'rows' list
-        for result in results:
-            rows.append(result.row)
-        # Get all rows values and append to all_row_val list    
-        for row in rows:
-            wrksheet = lookup.open_worksheet(worksheet)
-            all_row_val.append(wrksheet.row_values(row))
-
-        headers = lookup.get_headers(worksheet)
-        table = (render_table(all_row_val, headers, "psql"))
-        return table
+        print(f"\nSearching {worksheet} tapes for: {tape}")
+        results = self.find_all_cells(worksheet, tape)
+        print(f"Lookup results: {len(results)} entries found")
+        if len(results) != 0:
+            rows = []
+            all_row_val = []
+            # Get row number (from object property) and append to 'rows' list
+            for result in results:
+                rows.append(result.row)
+            # Get all rows values and append to all_row_val list    
+            for row in rows:
+                wrksheet = self.open_worksheet(worksheet)
+                all_row_val.append(wrksheet.row_values(row))
+            headers = self.get_headers(worksheet)
+            table = (render_table(all_row_val, headers, "psql"))
+            return table
+        else: 
+            return len(results)
 
 # Functions
 def print_welcome_screen():
@@ -235,6 +259,6 @@ def main():
     print("\n")
     # Get valid user's menu input
     usr_input = menu.valid_usr_input()
-    print(menu.process_input(usr_input))
+    menu.process_input(usr_input)
 
 main()
