@@ -84,8 +84,36 @@ class Menu:
 
         # 1  - Move tape offsite
         if usr_input == 1:
-            print(f"\nYour selection: {self.data[0][0]} {self.data[0][1]}")
-            
+            print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
+            offsite_wrksheet = "Offsite"
+            current_date = get_current_date()
+            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: "))
+
+            # Check if the tape is already stored 'Offsite'. Do nothing if it is.
+            print(f"Checking {offsite_wrksheet} tapes..")
+            offsite_tapes = g_sheet.find_all_cells(offsite_wrksheet, tape.t_number)
+            if not offsite_tapes:
+                onsite_tapes = g_sheet.find_all_cells("Onsite", tape.t_number)
+                retired_tapes = g_sheet.find_all_cells("Retired", tape.t_number) 
+
+                print("Checking Onsite tapes..") 
+                if onsite_tapes:
+                    # Check if the tape is onsite. If it is move tape data from 'Onsite' to 'Offsite' 
+                    tape.move_from_to_worksheet(g_sheet, "Onsite", offsite_wrksheet, onsite_tapes)
+
+                elif retired_tapes:
+                    # Check if the tape is retired. If it is print message that this operation is not allowed
+                    print("Checking Retired tapes.. \n"   
+                        "\nThis move is not allowed! \n"     
+                        f"Tape {tape.t_number} has been retired. Only 'Onsite' tapes can be moved 'Offsite'")
+
+                else:
+                    print("\nThis move is not allowed! \n"
+                        f"Tape number {tape.t_number} is not in media pool. \n"
+                        "This new tape should initially be moved to the 'Onsite' location \n")
+            else:
+                print(f"Nothing to do. Tape {tape.t_number} is already stored Offsite!\n")   
+                
         # 2  - Move tape onsite
         elif usr_input == 2:
             print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
@@ -96,7 +124,6 @@ class Menu:
             # Check if the tape is already stored 'Onsite'. Do nothing if it is.
             print(f"Checking {onsite_wrksheet} tapes..")
             onsite_tapes = g_sheet.find_all_cells(onsite_wrksheet, tape.t_number)
-        
             if not onsite_tapes:
                 offsite_tapes = g_sheet.find_all_cells("Offsite", tape.t_number)
                 retired_tapes = g_sheet.find_all_cells("Retired", tape.t_number) 
@@ -104,11 +131,12 @@ class Menu:
                 if offsite_tapes:
                     # Check if the tape is offsite. If it is move tape data from 'Offsite' to 'Onsite' 
                     tape.move_from_to_worksheet(g_sheet, "Offsite", onsite_wrksheet, offsite_tapes)
-                print("Checking Retired tapes..")
-                if retired_tapes:
+                
+                elif retired_tapes:
                      # Check if the tape is retired. If it is move tape data from 'Retired' to 'Onsite' 
-                      
+                    print("Checking Retired tapes.. \n")      
                     tape.move_from_to_worksheet(g_sheet, "Retired", onsite_wrksheet, retired_tapes)
+
                 else:
                     print(f"Tape number {tape.t_number} is not in media pool. \n"
                         "This new tape will be added to the pool. \n"
@@ -131,12 +159,10 @@ class Menu:
             else:
                 print(f"Nothing to do. Tape {tape.t_number} is already stored Onsite!\n")              
 
-                
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"\nYour selection: {self.data[2][0]} {self.data[2][1]}")
   
-        
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
             print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
@@ -205,7 +231,6 @@ class Tape():
         # Reverse iterator to remove records from the bottom of Google Sheet
         # ..to avoid removing process issues (not all records removes in regular iterator order)
         for t_row in reversed(tape_cells):
-            # Open Google Sheet and append row
             row_num = t_row.row
             # Copy values to temp variable
             temp_record = all_records[row_num - 1]  # e.g.['3408', 'BRMS', '08/03/2024']
@@ -213,7 +238,7 @@ class Tape():
             temp_record[2] = get_current_date()
             wrksheet.delete_rows(row_num)
             g_sheet.open_worksheet(to_wrksht).append_row(temp_record)
-            print(f"Tape moved from {from_wrksht} to {to_wrksht} successfully! \nThank you.\n")
+            print(f"Tape moved from {from_wrksht} to {to_wrksht} successfully! \n")
 
 
 class GoogleSpreadsheet():
