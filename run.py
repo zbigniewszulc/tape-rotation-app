@@ -363,7 +363,7 @@ def get_numeric_input(prompt):
     It takes user numeric input from user. Allows to set own prompt
     """
     while True:
-        user_input = input(prompt)
+        user_input = input(prompt + "\n")
         # https://docs.python.org/3/library/stdtypes.html#str.isdigit
         if user_input.isdigit():    
             return user_input 
