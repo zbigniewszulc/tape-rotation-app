@@ -85,21 +85,33 @@ class Menu:
         # 1  - Move tape offsite
         if usr_input == 1:
             print(f"\nYour selection: {self.data[0][0]} {self.data[0][1]}")
-            current_date = get_current_date()
-            tape = get_numeric_input("Enter the number of the tape to be moved: ")
-            type = input("Enter the type of tape: ")
-            wrksheet = g_sheet.open_worksheet("Onsite")
-            wrksheet.append_row([tape, type, current_date])
-
+            
         # 2  - Move tape onsite
         elif usr_input == 2:
             print(f"\nYour selection: {self.data[1][0]} {self.data[1][1]}")
-            print("2 selected")
+            current_date = get_current_date()
+            tape = get_numeric_input("Enter the number of the tape to be moved: ")
+            tape_types = ["BRMS", "DAILY", "WEEKLY", "MONTHLY"]
+            print("Type of tapes available: ")
+            for i  in range(len(tape_types)):
+                print(f"[{i+1}] - {tape_types[i]}")
+            
+            # Validate user entry for tape type
+            while True:
+                user_type = int(get_numeric_input(f"Enter the type of {tape} tape: "))
+                if 1 <= user_type <= len(tape_types):
+                    break
+                else:
+                    print("Invalid input. Try again..")  
+            
+            tape_type = tape_types[user_type-1] # Get String value of the tape type
+            wrksheet = g_sheet.open_worksheet("Onsite")
+            wrksheet.append_row([tape, tape_type, current_date])
         
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"\nYour selection: {self.data[2][0]} {self.data[2][1]}")
-            print("3 selected")
+  
         
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
@@ -231,7 +243,7 @@ def get_numeric_input(prompt):
         if user_input.isdigit():    
             return user_input 
         else:
-            print("Only numeric inputs allowed. Try again..")
+            print("Only numeric input allowed. Try again..")
 
 def render_table(data, headers, tablefmt):
     """
