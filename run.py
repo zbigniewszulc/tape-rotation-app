@@ -31,7 +31,7 @@ WELCOME_MSG = ("This CLI System is designed to manage and oversee the tape rotat
 # Classes
 class Menu:
     """
-    Menu class with its methods
+    Menu class with its methods and attributes 
     """
     def __init__(self, data, headers):
         self.data = data
@@ -90,23 +90,19 @@ class Menu:
         elif usr_input == 2:
             print(f"\nYour selection: {self.data[1][0]} {self.data[1][1]}")
             current_date = get_current_date()
-            tape = get_numeric_input("Enter the number of the tape to be moved: ")
-            tape_types = ["BRMS", "DAILY", "WEEKLY", "MONTHLY"]
+            tape = Tape(get_numeric_input("Enter the number of the tape to be moved: "))
             print("Type of tapes available: ")
-            for i  in range(len(tape_types)):
+            tape_types = tape.get_types()
+            # Display tape types
+            for i in range(len(tape_types)):
                 print(f"[{i+1}] - {tape_types[i]}")
-            
-            # Validate user entry for tape type
-            while True:
-                user_type = int(get_numeric_input(f"Enter the type of {tape} tape: "))
-                if 1 <= user_type <= len(tape_types):
-                    break
-                else:
-                    print("Invalid input. Try again..")  
-            
-            tape_type = tape_types[user_type-1] # Get String value of the tape type
+            # Get and validate user entry for tape type   
+            user_type = tape.get_and_val_t_type()    
+                  
+            tape.t_type = tape_types[user_type-1] # Get String value of the tape type
+            # Open Google Sheet and append row
             wrksheet = g_sheet.open_worksheet("Onsite")
-            wrksheet.append_row([tape, tape_type, current_date])
+            wrksheet.append_row([tape.t_number, tape.t_type, current_date])
         
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
@@ -147,6 +143,30 @@ class Menu:
             countdwn_exit(3)
         else:
             print("No assigned function for given input")
+
+class Tape():
+    """
+    Tape class with its methods and attributes
+    """            
+    def __init__(self, tape_number, tape_type = None):
+        self.t_number = tape_number
+        self.t_type = tape_type
+        
+    def get_types(self):
+        tape_types = ["BRMS", "DAILY", "WEEKLY", "MONTHLY"]    
+        return tape_types
+    
+    def get_and_val_t_type(self):
+        """
+        Validate user entry for tape type
+        """
+        while True:
+            user_type = int(get_numeric_input(f"Enter the type of {self.t_number} tape: "))
+            if 1 <= user_type <= len(self.get_types()):
+                return user_type
+            else:
+                print("Invalid input. Try again..")  
+    
 
 class GoogleSpreadsheet():
     """
