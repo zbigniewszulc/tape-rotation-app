@@ -88,22 +88,50 @@ class Menu:
             
         # 2  - Move tape onsite
         elif usr_input == 2:
-            print(f"\nYour selection: {self.data[1][0]} {self.data[1][1]}")
+            print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
+            onsite_wrksheet = "Onsite"
             current_date = get_current_date()
-            tape = Tape(get_numeric_input("Enter the number of the tape to be moved: "))
-            print("Type of tapes available: ")
-            tape_types = tape.get_types()
-            # Display tape types
-            for i in range(len(tape_types)):
-                print(f"[{i+1}] - {tape_types[i]}")
-            # Get and validate user entry for tape type   
-            user_type = tape.get_and_val_t_type()    
-                  
-            tape.t_type = tape_types[user_type-1] # Get String value of the tape type
-            # Open Google Sheet and append row
-            wrksheet = g_sheet.open_worksheet("Onsite")
-            wrksheet.append_row([tape.t_number, tape.t_type, current_date])
+            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: "))
+
+            # Check if the tape is already stored 'Onsite'. Do nothing if it is.
+            print(f"Checking {onsite_wrksheet} tapes..")
+            onsite_tapes = g_sheet.find_all_cells(onsite_wrksheet, tape.t_number)
         
+            if not onsite_tapes:
+                offsite_tapes = g_sheet.find_all_cells("Offsite", tape.t_number)
+                retired_tapes = g_sheet.find_all_cells("Retired", tape.t_number) 
+                print("Checking Offsite tapes..") 
+                if offsite_tapes:
+                    # Check if the tape is offsite. If it is move tape data from 'Offsite' to 'Onsite' 
+                    tape.move_from_to_worksheet(g_sheet, "Offsite", onsite_wrksheet, offsite_tapes)
+                print("Checking Retired tapes..")
+                if retired_tapes:
+                     # Check if the tape is retired. If it is move tape data from 'Retired' to 'Onsite' 
+                      
+                    tape.move_from_to_worksheet(g_sheet, "Retired", onsite_wrksheet, retired_tapes)
+                else:
+                    print(f"Tape number {tape.t_number} is not in media pool. \n"
+                        "This new tape will be added to the pool. \n"
+                        "Please provide more details.. \n"
+                        "\nAvailable media types: ")
+                    tape_types = tape.get_types()
+
+                    # Display tape types
+                    for i in range(len(tape_types)):
+                        print(f"[{i+1}] - {tape_types[i]}")
+
+                    # Get and validate user entry for tape type   
+                    user_type = tape.get_and_val_t_type()    
+                    tape.t_type = tape_types[user_type-1] # Get String value of the tape type
+
+                    # Open Google Sheet and append row
+                    wrksheet = g_sheet.open_worksheet(onsite_wrksheet)
+                    wrksheet.append_row([tape.t_number, tape.t_type, current_date])
+                    print("Data entered successfully!\n")
+            else:
+                print(f"Nothing to do. Tape {tape.t_number} is already stored Onsite!\n")              
+
+                
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"\nYour selection: {self.data[2][0]} {self.data[2][1]}")
@@ -111,23 +139,23 @@ class Menu:
         
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
-            print(f"\nYour selection: {self.data[3][0]} {self.data[3][1]}")
+            print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
             print(g_sheet.disp_all_wrksht_val("Offsite"))
         
         # 5  - Display all tapes stored onsite
         elif usr_input == 5:
-            print(f"\nYour selection: {self.data[4][0]} {self.data[4][1]}")
+            print(f"Your selection: {self.data[4][0]} {self.data[4][1]}")
             print(g_sheet.disp_all_wrksht_val("Onsite"))
         
         # 6  - Display all retired tapes
         elif usr_input == 6:
-            print(f"\nYour selection: {self.data[5][0]} {self.data[5][1]}")
+            print(f"Your selection: {self.data[5][0]} {self.data[5][1]}")
             print(g_sheet.disp_all_wrksht_val("Retired"))
         
         # 7  - Lookup
         elif usr_input == 7:
-            print(f"\nYour selection: {self.data[6][0]} {self.data[6][1]}")
-            tape=get_numeric_input("Please enter tape number: ")
+            print(f"Your selection: {self.data[6][0]} {self.data[6][1]}")
+            tape=get_numeric_input("\nPlease enter tape number: ")
             lookup = GoogleSpreadsheet()
             workbooks = ["Offsite", "Onsite", "Retired"]
             for workbook in workbooks:
@@ -137,8 +165,8 @@ class Menu:
 
         #  8  - Exit        
         elif usr_input == 8:
-            print(f"\nYour selection: {self.data[7][0]} {self.data[7][1]}.")
-            print("Terminating the program")
+            print(f"Your selection: {self.data[7][0]} {self.data[7][1]}.")
+            print("\nTerminating the program")
             # Terminates the program in a fancy way using countdown
             countdwn_exit(3)
         else:
@@ -161,12 +189,32 @@ class Tape():
         Validate user entry for tape type
         """
         while True:
-            user_type = int(get_numeric_input(f"Enter the type of {self.t_number} tape: "))
+            user_type = int(get_numeric_input(f"\nEnter the type of {self.t_number} tape (options above): "))
             if 1 <= user_type <= len(self.get_types()):
                 return user_type
             else:
                 print("Invalid input. Try again..")  
-    
+                time.sleep(1.5)
+
+    def move_from_to_worksheet(self, g_sheet, from_wrksht, to_wrksht, tape_cells):
+        """
+        Move tape data from one Google Sheet to another. 
+        """
+        wrksheet = g_sheet.open_worksheet(from_wrksht)
+        all_records = wrksheet.get_all_values()
+        # Reverse iterator to remove records from the bottom of Google Sheet
+        # ..to avoid removing process issues (not all records removes in regular iterator order)
+        for t_row in reversed(tape_cells):
+            # Open Google Sheet and append row
+            row_num = t_row.row
+            # Copy values to temp variable
+            temp_record = all_records[row_num - 1]  # e.g.['3408', 'BRMS', '08/03/2024']
+            # Change current date
+            temp_record[2] = get_current_date()
+            wrksheet.delete_rows(row_num)
+            g_sheet.open_worksheet(to_wrksht).append_row(temp_record)
+            print(f"Tape moved from {from_wrksht} to {to_wrksht} successfully! \nThank you.\n")
+
 
 class GoogleSpreadsheet():
     """
@@ -263,7 +311,8 @@ def get_numeric_input(prompt):
         if user_input.isdigit():    
             return user_input 
         else:
-            print("Only numeric input allowed. Try again..")
+            print("Only numbers allowed. Try again..")
+            time.sleep(1.5)
 
 def render_table(data, headers, tablefmt):
     """
