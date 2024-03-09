@@ -86,58 +86,19 @@ class Menu:
         if usr_input == 1:
             print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
             tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
-            tape.tape_move_rules(g_sheet, usr_input)
+            tape.move_with_rules(g_sheet, usr_input)
               
         # 2  - Move tape onsite
         elif usr_input == 2:
             print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
-            onsite_wrksheet = "Onsite"
-            current_date = get_current_date()
-            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: "))
-
-            # Check if the tape is already stored 'Onsite'. Do nothing if it is.
-            print(f"Checking {onsite_wrksheet} tapes..")
-            onsite_tapes = g_sheet.find_all_cells(onsite_wrksheet, tape.t_number)
-            if not onsite_tapes:
-                offsite_tapes = g_sheet.find_all_cells("Offsite", tape.t_number)
-                retired_tapes = g_sheet.find_all_cells("Retired", tape.t_number) 
-                print("Checking Offsite tapes..") 
-                if offsite_tapes:
-                    # Check if the tape is offsite. If it is move tape data from 'Offsite' to 'Onsite' 
-                    tape.move_from_to_worksheet(g_sheet, "Offsite", onsite_wrksheet, offsite_tapes)
-                
-                elif retired_tapes:
-                     # Check if the tape is retired. If it is move tape data from 'Retired' to 'Onsite' 
-                    print("Checking Retired tapes.. \n")      
-                    tape.move_from_to_worksheet(g_sheet, "Retired", onsite_wrksheet, retired_tapes)
-
-                else:
-                    print(f"Tape number {tape.t_number} is not in the tape set. \n"
-                        "This new tape will be added to the pool. \n"
-                        "Please provide more details.. \n"
-                        "\nAvailable media types: ")
-                    tape_types = tape.get_types()
-
-                    # Display tape types
-                    for i in range(len(tape_types)):
-                        print(f"[{i+1}] - {tape_types[i]}")
-
-                    # Get and validate user entry for tape type   
-                    user_type = tape.get_and_val_t_type()    
-                    tape.t_type = tape_types[user_type-1] # Get String value of the tape type
-
-                    # Open Google Sheet and append row
-                    wrksheet = g_sheet.open_worksheet(onsite_wrksheet)
-                    wrksheet.append_row([tape.t_number, tape.t_type, current_date])
-                    print("Data entered successfully!\n")
-            else:
-                print(f"Nothing to do. Tape {tape.t_number} is already 'Onsite!'\n")              
+            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
+            tape.move_with_rules(g_sheet, usr_input)
 
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"Your selection: {self.data[2][0]} {self.data[2][1]}")
             tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
-            tape.tape_move_rules(g_sheet, usr_input)  
+            tape.move_with_rules(g_sheet, usr_input)  
 
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
@@ -197,9 +158,9 @@ class Tape():
             else:
                 print("Invalid input. Try again..")  
                 time.sleep(1.5)
-    ###
-    def tape_move_rules(self, g_sheet, menu_option):
-        # current_date = get_current_date()
+
+    def move_with_rules(self, g_sheet, menu_option):
+        current_date = get_current_date()
         # Rules based on what Menu option provided
         if (menu_option == 1):
             worksheet_seq = ["Offsite","Onsite","Retired"]
@@ -223,18 +184,42 @@ class Tape():
                 self.move_from_to_worksheet(g_sheet, worksheet_seq[1], worksheet_seq[0], seq1_tapes)
             elif seq2_tapes:
                 # Check if the tape is worksheet_seq[2]. 
-                # If it is print message that this operation is not allowed    
-                print(f"Checking {worksheet_seq[2]} tapes.. \n"   
-                        "\nThis move is not allowed! \n"     
-                        f"Tape {self.t_number} is {worksheet_seq[2]}. Only '{worksheet_seq[1]}' tapes can be moved to '{worksheet_seq[0]}'")
+                # If it is print message that this operation is not allowed   
+                print(f"Checking {worksheet_seq[2]} tapes.. \n")  
+                if (menu_option == 2):  
+                    # In case if Menu option 2 was provided
+                    # Move tape data from 'Retired' to 'Onsite'
+                    self.move_from_to_worksheet(g_sheet, worksheet_seq[2], worksheet_seq[0], seq2_tapes)
+                else:
+                    print("\nThis move is not allowed! \n"
+                          f"Tape {self.t_number} is {worksheet_seq[2]}." 
+                          "Only '{worksheet_seq[1]}' tapes can be moved to '{worksheet_seq[0]}'")
             else:
-                print(self.t_number)
-                print("\nThis move is not allowed! \n"
-                    f"Tape number {self.t_number} is not in the tape set. \n"
-                    f"This new tape should initially be moved to the '{worksheet_seq[1]}' location \n")
+                if (menu_option == 2): 
+                    # In case if Menu option 2 was provided
+                    print(f"Tape number {self.t_number} is not in the tape set. \n"
+                        "This new tape will be added to the pool. \n"
+                        "Please provide more details.. \n"
+                        "\nAvailable media types: ")
+                    tape_types = self.get_types()
+                    # Display tape types
+                    for i in range(len(tape_types)):
+                        print(f"[{i+1}] - {tape_types[i]}")
+                    # Get and validate user entry for tape type   
+                    user_type = self.get_and_val_t_type()   
+                    # Get String value of the tape type 
+                    self.t_type = tape_types[user_type-1] 
+
+                    # Open Google Sheet and append row
+                    wrksheet = g_sheet.open_worksheet(worksheet_seq[0])
+                    wrksheet.append_row([self.t_number, self.t_type, current_date])
+                    print("Data entered successfully!\n")
+                else:
+                    print("\nThis move is not allowed! \n")
+                    print(f"Tape number {self.t_number} is not in the tape set. \n"
+                      f"This new tape should initially be moved to the '{worksheet_seq[1]}' location \n")
         else:
             print(f"Nothing to do. Tape {self.t_number} is already '{worksheet_seq[0]}'!\n")       
-    ###
 
     def move_from_to_worksheet(self, g_sheet, from_wrksht, to_wrksht, tape_cells):
         """
@@ -350,7 +335,7 @@ def get_numeric_input(prompt):
         if user_input.isdigit():    
             return user_input 
         else:
-            print("Only numbers allowed. Try again..")
+            print("Please eneter only numbers without any spaces. Try again..")
             time.sleep(1.5)
 
 def render_table(data, headers, tablefmt):
