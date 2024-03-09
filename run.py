@@ -33,9 +33,18 @@ class Menu:
     """
     Menu class with its methods and attributes 
     """
-    def __init__(self, data, headers):
-        self.data = data
-        self.headers = headers  
+    def __init__(self):
+        self.data = [
+            [1, "- Move tape offsite"],
+            [2, "- Move tape onsite"],
+            [3, "- Move tape to retired media pool"],
+            [4, "- Display all tapes stored offsite"],
+            [5, "- Display all tapes stored onsite"],
+            [6, "- Display all retired tapes"],
+            [7, "- Lookup"],
+            [8, "- Exit"]
+        ]
+        self.headers = ["#","Menu"]  
 
     def render_menu(self):
         """
@@ -87,33 +96,39 @@ class Menu:
             print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
             tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
             tape.move_with_rules(g_sheet, usr_input)
+            continue_question()
               
         # 2  - Move tape onsite
         elif usr_input == 2:
             print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
             tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
-            tape.move_with_rules(g_sheet, usr_input)
+            tape.move_with_rules(g_sheet, usr_input)  
+            continue_question()
 
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"Your selection: {self.data[2][0]} {self.data[2][1]}")
             tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
-            tape.move_with_rules(g_sheet, usr_input)  
+            tape.move_with_rules(g_sheet, usr_input) 
+            continue_question() 
 
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
             print(f"Your selection: {self.data[3][0]} {self.data[3][1]}")
             print(g_sheet.disp_all_wrksht_val("Offsite"))
+            continue_question()
         
         # 5  - Display all tapes stored onsite
         elif usr_input == 5:
             print(f"Your selection: {self.data[4][0]} {self.data[4][1]}")
             print(g_sheet.disp_all_wrksht_val("Onsite"))
+            continue_question()
         
         # 6  - Display all retired tapes
         elif usr_input == 6:
             print(f"Your selection: {self.data[5][0]} {self.data[5][1]}")
             print(g_sheet.disp_all_wrksht_val("Retired"))
+            continue_question()
         
         # 7  - Lookup
         elif usr_input == 7:
@@ -125,6 +140,7 @@ class Menu:
                 results = lookup.lookup_results(workbook, tape)
                 if results:
                     print(results)
+            continue_question()        
 
         #  8  - Exit        
         elif usr_input == 8:
@@ -134,6 +150,7 @@ class Menu:
             countdwn_exit(3)
         else:
             print("No assigned function for given input")
+            continue_question()
 
 class Tape():
     """
@@ -160,6 +177,13 @@ class Tape():
                 time.sleep(1.5)
 
     def move_with_rules(self, g_sheet, menu_option):
+        """
+        Will move tape from one worksheet to other based on rules 
+        and Menu option sleected. 
+        1) Moving tapes to Onsite worksheet is allowed from any other worksheet
+        2) Moving to Retired worksheet is possible only from Onsite worksheet
+        3) Moving to Offsite worksheet is possible only from Onsite worksheet
+        """
         current_date = get_current_date()
         # Rules based on what Menu option provided
         if (menu_option == 1):
@@ -338,6 +362,32 @@ def get_numeric_input(prompt):
             print("Please eneter only numbers without any spaces. Try again..")
             time.sleep(1.5)
 
+def continue_question():
+    """
+    If user wants to proceed it will print Menu on screen
+    If 'n' select program will terminate
+    """
+    while True:
+        # Convert input to lower case
+        answer = input("\nWould you like to continue [y/n]?: ").lower() 
+        if (answer == "y"):
+            menu_deploy()
+        elif (answer == "n"):
+            countdwn_exit(3)
+        else:
+            print("Invalid key entered. Try again..")
+
+def menu_deploy():
+    """
+    Prints Menu on screen
+    """
+    # Render menu
+    menu = Menu()
+    print("\n" + menu.render_menu() + "\n")
+    # Get valid user's menu input
+    usr_input = menu.valid_usr_input()
+    menu.process_input(usr_input)
+
 def render_table(data, headers, tablefmt):
     """
     Render table using tabulate module
@@ -362,31 +412,9 @@ def main():
     This is where all flow begins
     """
     # Variables
-    # Data to build Menu
-    menu_headers = ["#","Menu"]
-    menu_data = [
-            [1, "- Move tape offsite"],
-            [2, "- Move tape onsite"],
-            [3, "- Move tape to retired media pool"],
-            [4, "- Display all tapes stored offsite"],
-            [5, "- Display all tapes stored onsite"],
-            [6, "- Display all retired tapes"],
-            [7, "- Lookup"],
-            [8, "- Exit"]
-        ]
-    menu = Menu(menu_data, menu_headers)
-
     # Welcome screen
     print(TXT_GREEN) # Use console font color green
     print_welcome_screen()
-
-    # Render menu
-    print(menu.render_menu())
-    print("\n")
-
-    # Get valid user's menu input
-    usr_input = menu.valid_usr_input()
-    menu.process_input(usr_input)
-
+    menu_deploy()
 
 main()
