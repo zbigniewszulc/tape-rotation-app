@@ -85,37 +85,9 @@ class Menu:
         # 1  - Move tape offsite
         if usr_input == 1:
             print(f"Your selection: {self.data[0][0]} {self.data[0][1]}")
-            offsite_wrksheet_name = "Offsite"
-            onsite_wrksheet_name = "Onsite"
-            retired_wrksheet_name = "Retired"
-            current_date = get_current_date()
-            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: "))
-
-            # Check if the tape is already stored 'Offsite'. Do nothing if it is.
-            print(f"Checking {offsite_wrksheet_name} tapes..")
-            offsite_tapes = g_sheet.find_all_cells(offsite_wrksheet_name, tape.t_number)
-            if not offsite_tapes:
-                onsite_tapes = g_sheet.find_all_cells(onsite_wrksheet_name, tape.t_number)
-                retired_tapes = g_sheet.find_all_cells(retired_wrksheet_name, tape.t_number) 
-
-                print(f"Checking {onsite_wrksheet_name} tapes..") 
-                if onsite_tapes:
-                    # Check if the tape is onsite. If it is move tape data from 'Onsite' to 'Offsite' 
-                    tape.move_from_to_worksheet(g_sheet, onsite_wrksheet_name, offsite_wrksheet_name, onsite_tapes)
-
-                elif retired_tapes:
-                    # Check if the tape is retired. If it is print message that this operation is not allowed
-                    print(f"Checking {retired_wrksheet_name} tapes.. \n"   
-                        "\nThis move is not allowed! \n"     
-                        f"Tape {tape.t_number} has been retired. Only '{onsite_wrksheet_name}' tapes can be moved '{offsite_wrksheet_name}'")
-
-                else:
-                    print("\nThis move is not allowed! \n"
-                        f"Tape number {tape.t_number} is not in the tape set. \n"
-                        f"This new tape should initially be moved to the '{onsite_wrksheet_name}' location \n")
-            else:
-                print(f"Nothing to do. Tape {tape.t_number} is already '{offsite_wrksheet_name}'!\n")   
-                
+            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
+            tape.tape_move_rules(g_sheet, usr_input)
+              
         # 2  - Move tape onsite
         elif usr_input == 2:
             print(f"Your selection: {self.data[1][0]} {self.data[1][1]}")
@@ -164,36 +136,8 @@ class Menu:
         # 3  - Move tape to retired media pool
         elif usr_input == 3:
             print(f"Your selection: {self.data[2][0]} {self.data[2][1]}")
-            retired_wrksheet_name = "Retired"
-            offsite_wrksheet_name = "Offsite"
-            onsite_wrksheet_name = "Onsite"
-            current_date = get_current_date()
-            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: "))
-
-            # Check if the tape is already 'Retired'. Do nothing if it is.
-            print(f"Checking {retired_wrksheet_name} tapes..")
-            retired_tapes = g_sheet.find_all_cells(retired_wrksheet_name, tape.t_number)
-            if not retired_tapes:
-                onsite_tapes = g_sheet.find_all_cells(onsite_wrksheet_name, tape.t_number)
-                offsite_tapes = g_sheet.find_all_cells(offsite_wrksheet_name, tape.t_number) 
-
-                print(f"Checking {onsite_wrksheet_name} tapes..") 
-                if onsite_tapes:
-                    # Check if the tape is onsite. If it is move tape data from 'Onsite' to 'Offsite' 
-                    tape.move_from_to_worksheet(g_sheet, onsite_wrksheet_name, retired_wrksheet_name, onsite_tapes)
-
-                elif offsite_tapes:
-                    # Check if the tape is offsite. If it is print message that this operation is not allowed
-                    print(f"Checking {offsite_wrksheet_name} tapes.. \n"   
-                        "\nThis move is not allowed! \n"     
-                        f"Tape {tape.t_number} is '{offsite_wrksheet_name}'. Only '{onsite_wrksheet_name}' tapes can be moved to '{retired_wrksheet_name}'")
-
-                else:
-                    print("\nThis move is not allowed! \n"
-                        f"Tape number {tape.t_number} is not in the tape set. \n"
-                        f"This new tape should initially be moved to the '{onsite_wrksheet_name}' location \n")
-            else:
-                print(f"Nothing to do. Tape {tape.t_number} is already '{retired_wrksheet_name}'!\n")   
+            tape = Tape(get_numeric_input("\nEnter the number of the tape to be moved: ")) 
+            tape.tape_move_rules(g_sheet, usr_input)  
 
         # 4  - Display all tapes stored offsite
         elif usr_input == 4:
@@ -253,6 +197,44 @@ class Tape():
             else:
                 print("Invalid input. Try again..")  
                 time.sleep(1.5)
+    ###
+    def tape_move_rules(self, g_sheet, menu_option):
+        # current_date = get_current_date()
+        # Rules based on what Menu option provided
+        if (menu_option == 1):
+            worksheet_seq = ["Offsite","Onsite","Retired"]
+        elif (menu_option == 2):
+            worksheet_seq = ["Onsite","Offsite","Retired"]
+        elif (menu_option == 3):
+            worksheet_seq = ["Retired","Onsite","Offsite"]
+        else:
+            print("Given Menu option is uknown") 
+        # Check if the tape is already in the destination location. 
+        # If it is, no action is needed.
+        print(f"Checking {worksheet_seq[0]} tapes..") 
+        seq0_tapes = g_sheet.find_all_cells(worksheet_seq[0], self.t_number)                       
+        if not seq0_tapes:
+            seq1_tapes = g_sheet.find_all_cells(worksheet_seq[1], self.t_number)
+            seq2_tapes = g_sheet.find_all_cells(worksheet_seq[2], self.t_number) 
+            print(f"Checking {worksheet_seq[1]} tapes..")
+            if seq1_tapes:
+                # Check if the tape is in worksheet_seq[1]. 
+                # If it is move tape data from worksheet_seq[1] to worksheet_seq[0] 
+                self.move_from_to_worksheet(g_sheet, worksheet_seq[1], worksheet_seq[0], seq1_tapes)
+            elif seq2_tapes:
+                # Check if the tape is worksheet_seq[2]. 
+                # If it is print message that this operation is not allowed    
+                print(f"Checking {worksheet_seq[2]} tapes.. \n"   
+                        "\nThis move is not allowed! \n"     
+                        f"Tape {self.t_number} is {worksheet_seq[2]}. Only '{worksheet_seq[1]}' tapes can be moved to '{worksheet_seq[0]}'")
+            else:
+                print(self.t_number)
+                print("\nThis move is not allowed! \n"
+                    f"Tape number {self.t_number} is not in the tape set. \n"
+                    f"This new tape should initially be moved to the '{worksheet_seq[1]}' location \n")
+        else:
+            print(f"Nothing to do. Tape {self.t_number} is already '{worksheet_seq[0]}'!\n")       
+    ###
 
     def move_from_to_worksheet(self, g_sheet, from_wrksht, to_wrksht, tape_cells):
         """
@@ -270,7 +252,7 @@ class Tape():
             temp_record[2] = get_current_date()
             wrksheet.delete_rows(row_num)
             g_sheet.open_worksheet(to_wrksht).append_row(temp_record)
-            print(f"Tape moved from {from_wrksht} to {to_wrksht} successfully! \n")
+            print(f"The tape {self.t_number} has been moved from '{from_wrksht}' to '{to_wrksht}' successfully! \n")
 
 
 class GoogleSpreadsheet():
