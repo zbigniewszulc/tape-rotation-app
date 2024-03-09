@@ -239,7 +239,7 @@ class Tape():
                         seq2_tapes)
                 else:
                     print("This move is not allowed! \n"
-                          f"Tape {self.t_number} is {worksheet_seq[2]}."
+                          f"Tape {self.t_number} is {worksheet_seq[2]}. \n"
                           f"Only '{worksheet_seq[1]}' tapes can be moved to "
                           f"'{worksheet_seq[0]}'")
             else:
