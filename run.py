@@ -24,11 +24,11 @@ TXT_GREEN = "\033[32m"  # Console color:green
 
 SYSTEM_NAME = 24 * " " + " TAPE ROTATION MANAGEMENT SYSTEM " + 23 * " "
 WELCOME_MSG = (
-    "This CLI System is designed to manage and oversee the tape rotation \n"
-    "schedule across different media types, including BRMS, DAILY, WEEKLY, \n"
-    "and MONTHLY. It is tailored for IT department use, facilitating \n"
-    "the monitoring and control of backup tape storage locations, \n"
-    "whether onsite, offsite, or retired.")
+    "\tThis CLI System is designed to manage and oversee the tape rotation \n"
+    "\tschedule across different media types, including BRMS, DAILY, WEEKLY,\n"
+    "\tand MONTHLY. It is tailored for IT department use, facilitating \n"
+    "\tthe monitoring and control of backup tape storage locations, \n"
+    "\twhether onsite, offsite, or retired.")
 
 # Classes
 
