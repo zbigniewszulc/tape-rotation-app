@@ -154,7 +154,6 @@ class Menu:
         #  8  - Exit
         elif usr_input == 8:
             print(f"Your selection: {self.data[7][0]} {self.data[7][1]}.")
-            print("\nTerminating the program")
             # Terminates the program in a fancy way using countdown
             countdwn_exit(3)
         else:
@@ -450,6 +449,7 @@ def countdwn_exit(sec):
     """
     It terminates the program using built in sys and time module
     """
+    print("\nTerminating the program")
     for i in range(sec, 0, -1):
         print(i)
         time.sleep(1)
